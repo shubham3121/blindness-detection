@@ -1,0 +1,11 @@
+*.pyc
+*.pyo
+*.o
+*.cgi
+*.log
+*.swp
+*.swo
+.idea
+venv/
+venv
+data/
