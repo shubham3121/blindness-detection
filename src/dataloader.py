@@ -3,7 +3,7 @@ from torch.utils.data.dataset import Dataset
 from torch.utils.data.dataloader import DataLoader
 from torchvision.transforms import transforms
 
-from utils import read_image
+from src.utils import read_image
 
 
 class RetinaDataset(Dataset):
@@ -15,7 +15,6 @@ class RetinaDataset(Dataset):
 
         self.labels = labels
         self.directory = directory
-        self.size = size
         self.transform = transform
         super(RetinaDataset, self).__init__()
 
@@ -29,13 +28,13 @@ class RetinaDataset(Dataset):
         img_label = label[1]
 
         image = read_image(self.directory, img_name)
-        if self.transform:
+        if self.transform is not None:
             image = self.transform(image)
 
         return [image, img_label]
 
 
-class RetinaDataLoader(object):
+class RetinaDataLoader:
     """
     Creates a data-loader for training and testing data set
     """
@@ -57,12 +56,13 @@ class RetinaDataLoader(object):
             return self.te_dl
 
 
-class Transform(object):
-    def __init__(self, resize=(224, 224)):
+class Transform:
+    def __init__(self, resize_to=(224, 224)):
         list_of_transforms = [
+            transforms.Resize(size=resize_to),
+            transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.485, 0.485, 0.485],
-                                 std=[0.485, 0.485, 0.485]),
-            transforms.RandomSizedCrop(size=resize)
+                                 std=[0.485, 0.485, 0.485])
         ]
         self.transform = transforms.Compose(list_of_transforms)
