@@ -11,26 +11,31 @@ class RetinaDataset(Dataset):
     Creates a Dataset class to represent the retina image
     """
 
-    def __init__(self, labels, directory, transform=None):
+    def __init__(self, labels, directory, transform=None, test=False):
 
         self.labels = labels
         self.directory = directory
         self.transform = transform
+        self.test = test
         super(RetinaDataset, self).__init__()
 
     def __len__(self):
         return len(self.labels)
 
     def __getitem__(self, index):
+
         label = self.labels.iloc[index]
 
         img_name = "{}.png".format(label[0])
-        img_label = label[1]
 
         image = read_image(self.directory, img_name)
         if self.transform is not None:
             image = self.transform(image)
 
+        if self.test:
+            return [image]
+
+        img_label = label[1]
         return [image, img_label]
 
 
@@ -39,11 +44,14 @@ class RetinaDataLoader:
     Creates a data-loader for training and testing data set
     """
 
-    def __init__(self, tr_ds, te_ds=None, batch_size=16, shuffle=False):
+    def __init__(self, tr_ds, val_ds=None, te_ds=None, batch_size=16, shuffle=False):
         num_workers = os.cpu_count()
 
         self.tr_dl = DataLoader(dataset=tr_ds, batch_size=batch_size,
                                 shuffle=shuffle, num_workers=num_workers)
+
+        self.val_dl = DataLoader(dataset=val_ds, batch_size=batch_size,
+                                 shuffle=shuffle, num_workers=num_workers)
 
         if te_ds is not None:
             self.te_dl = DataLoader(dataset=te_ds, batch_size=batch_size,
@@ -52,6 +60,8 @@ class RetinaDataLoader:
     def __getitem__(self, item):
         if item == 'train':
             return self.tr_dl
+        elif item == 'val':
+            return self.val_dl
         elif item == 'test':
             return self.te_dl
 
