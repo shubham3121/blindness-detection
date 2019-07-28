@@ -1,15 +1,16 @@
 import torch
 import copy
 from torch import nn
+from torch import optim
 from torchvision.models import resnet50
 
 
 class ResnetModel:
-
-    def __int__(self, pretrained=False):
+    def __init__(self, pretrained=False):
         self.model = resnet50(pretrained=pretrained)
 
-    def train(self, dataloaders, optimizer, loss_func, device, num_epochs=10):
+    def train(self, dataloaders, optimizer, loss_func, device, scheduler,
+              num_epochs=10):
 
         val_acc_history = []
 
@@ -24,10 +25,12 @@ class ResnetModel:
             for phase in ['train', 'val']:
                 if phase == 'train':
                     # Set model to training mode
+                    scheduler.step()
                     self.model.train()
                 else:
                     # Set model to evaluate mode
                     self.model.eval()
+
                 running_loss = 0.0
                 running_corrects = 0
 
@@ -86,6 +89,17 @@ class ResnetModel:
         input_size = 224
 
         return self.model, input_size
+
+    def optimizer(self):
+        parameter_list = [
+            {"params": self.model.fc.parameters(), "lr": 1e-3}
+        ]
+        optimizer = optim.Adam(params=parameter_list, lr=0.001)
+        scheduler = optim.lr_scheduler.StepLR(optimizer=optimizer, step_size=5)
+
+        loss_func = nn.MSELoss()
+
+        return optimizer, scheduler, loss_func
 
     def test(self, dataloader, device):
 
