@@ -17,6 +17,8 @@ class ResnetModel:
         best_model_wts = copy.deepcopy(self.model.state_dict())
         best_acc = 0.0
 
+        self.model.to(device)
+
         for epoch in range(num_epochs):
             print("Epochs {}/ {}".format(epoch, num_epochs - 1))
             print("-"*10)
@@ -97,7 +99,7 @@ class ResnetModel:
         optimizer = optim.Adam(params=parameter_list, lr=0.001)
         scheduler = optim.lr_scheduler.StepLR(optimizer=optimizer, step_size=5)
 
-        loss_func = nn.MSELoss()
+        loss_func = nn.CrossEntropyLoss()
 
         return optimizer, scheduler, loss_func
 
