@@ -87,9 +87,19 @@ class ResnetModel:
 
         self.set_parameter_requires_grad(feature_extraction)
         num_filters = self. model.fc.in_features
-        self.model.fc = nn.Linear(num_filters, num_classes)
-        input_size = 224
+        self.model.avgpool = nn.AdaptiveAvgPool2d(1)
+        self.model.fc = nn.Sequential(
+            nn.BatchNorm1d(num_filters, eps=1e-5, momentum=0.1,
+                           affine=True, track_running_stats=True),
+            nn.Dropout(p=0.25),
+            nn.Linear(in_features=2048, out_features=2048, bias=True),
+            nn.ReLU(),
+            nn.BatchNorm1d(2048, eps=1e-5, momentum=0.1,
+                           affine=True, track_running_stats=True),
+            nn.Dropout(p=0.5),
+            nn.Linear(in_features=2048, out_features=num_classes, bias=True))
 
+        input_size = 224
         return self.model, input_size
 
     def optimizer(self):
