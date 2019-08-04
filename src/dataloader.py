@@ -70,9 +70,58 @@ class Transform:
     def __init__(self, resize_to=(224, 224)):
         list_of_transforms = [
             transforms.Resize(size=resize_to),
-            transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.485, 0.485],
-                                 std=[0.485, 0.485, 0.485])
+            transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                 std=[0.229, 0.224, 0.225])
+        ]
+        self.transform = transforms.Compose(list_of_transforms)
+
+
+class TransformTrainSet1:
+    def __init__(self, resize_to=(224, 224)):
+        list_of_transforms = [
+            transforms.RandomHorizontalFlip(),
+            transforms.RandomCrop(size=resize_to),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                 std=[0.229, 0.224, 0.225])
+        ]
+        self.transform = transforms.Compose(list_of_transforms)
+
+
+class TransformTrainSet2:
+    def __init__(self, resize_to=(224, 224)):
+        list_of_transforms = [
+            transforms.RandomAffine(degrees=(-180, 180)),
+            transforms.CenterCrop(size=resize_to),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                 std=[0.229, 0.224, 0.225])
+        ]
+        self.transform = transforms.Compose(list_of_transforms)
+
+
+class TransformTrainSet3:
+    def __init__(self, resize_to=(224, 224)):
+        list_of_transforms = [
+            transforms.RandomVerticalFlip(),
+            transforms.RandomRotation(degrees=(-180, 180)),
+            transforms.Resize(size=resize_to),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                 std=[0.229, 0.224, 0.225])
+        ]
+        self.transform = transforms.Compose(list_of_transforms)
+
+
+class TransformTrainSet4:
+    def __init__(self, resize_to=(224, 224)):
+        list_of_transforms = [
+            transforms.ColorJitter(brightness=0.35, contrast=0.15,
+                                   saturation=0.10),
+            transforms.Resize(size=resize_to),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                 std=[0.229, 0.224, 0.225])
         ]
         self.transform = transforms.Compose(list_of_transforms)
