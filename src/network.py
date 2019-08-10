@@ -87,7 +87,6 @@ class ResnetModel:
 
         self.set_parameter_requires_grad(feature_extraction)
         num_filters = self. model.fc.in_features
-        self.model.avgpool = nn.AdaptiveAvgPool2d(1)
         self.model.fc = nn.Sequential(
             nn.BatchNorm1d(num_filters, eps=1e-5, momentum=0.1,
                            affine=True, track_running_stats=True),
@@ -98,13 +97,12 @@ class ResnetModel:
                            affine=True, track_running_stats=True),
             nn.Dropout(p=0.5),
             nn.Linear(in_features=2048, out_features=num_classes, bias=True))
-
         input_size = 224
         return self.model, input_size
 
     def optimizer(self):
         parameter_list = [
-            {"params": self.model.fc.parameters(), "lr": 1e-3}
+            {"params": self.model.fc.parameters(), "lr": 1e-2}
         ]
         optimizer = optim.Adam(params=parameter_list, lr=0.001)
         scheduler = optim.lr_scheduler.StepLR(optimizer=optimizer, step_size=5)
@@ -121,7 +119,6 @@ class ResnetModel:
             inputs = inputs.to(device)
             outputs = self.model(inputs)
 
-            _, preds = torch.max(outputs, 1)
-            predictions.extend(preds)
+            predictions.extend(outputs.argmax(-1))
 
         return predictions
